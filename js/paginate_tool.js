@@ -76,6 +76,14 @@ var paginate_vue = new Vue({
 					index = parseInt(index);
 					this.page = index
 					var list = [];					
+					
+					if(this.page_total <= 5){
+						for(i=1;i<=this.page_total;i++)
+							list.push(i);
+						this.show_page = list;
+						return;
+					}
+					
 					if(index < 5){
 						for(i=1;i<=5;i++){
 							list.push(i);
@@ -83,10 +91,10 @@ var paginate_vue = new Vue({
 						list.push('···');
 						list.push(this.page_total);						
 					}
-					else if(index > this.page_total-5){
+					else if(index > this.page_total-4){
 						list.push(1);
 						list.push('···');
-						for(i=this.page_total-5;i<=this.page_total;i++){
+						for(i=this.page_total-4;i<=this.page_total;i++){
 							list.push(i);
 						}
 					}
