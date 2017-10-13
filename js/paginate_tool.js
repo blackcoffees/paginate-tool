@@ -9,7 +9,7 @@ var paginate_html= function(){
 				</button> 
 				<ul class="dropdown-menu"> 
 					<template v-for="item in rows_list">
-						<li><a href="javascript:;" @click="child_change_rows(item)">{{item}}</a></li> 
+						<li><a href="javascript:;" @click="rows = item">{{item}}</a></li> 
 					</template> 
 				</ul> 
 			</div> 
@@ -17,17 +17,17 @@ var paginate_html= function(){
 		<div class="paginate col-md-6 right"> 
 			<div class="row">
 				<ul class="col-md-6 pagination"> 
-					<li class="start" @click="child_pre_page"><i>&lt;</i></li> 
-					<template v-for="i in show_page">
-						<li v-if="i == '···'" class="ellipsis" v-text="i" :key="i" ></li> 
-						<li v-else v-text="i" :key="i" :class="{active: i == 1}" @click="child_change_page(i, $event)"></li>
+					<li class="start" @click="change_page(index--)"><i>&lt;</i></li> 
+					<template v-for="index in show_page">
+						<li v-if="index == '···'" class="ellipsis" v-text="index" :key="index" ></li> 
+						<li v-else v-text="index" :title="index" :key="index" :class="{active: index == page}" @click="change_page(index)"></li>
 					</template> 
-					<li class="end" @click="child_next_page"><i>&gt;</i></li> 
+					<li class="end" @click="change_page(index++)"><i>&gt;</i></li> 
 				</ul>
 				<div class="col-md-4 pagination-turn">
 					跳转到
-					<input onkeyup="value=value.replace(/[^0-9]/g, '')" v-bind:value="page" onblur="if(this.value == '' || this.value<=0){this.value=1}" @keyup.13="child_change_page(0, '')"/> 页 
-					<label @click="child_change_page(0, '')">确定</label>
+					<input onkeyup="value=value.replace(/[^0-9]/g, '')" v-bind:value="page" onblur="if(this.value == '' || this.value<=0){this.value=1}" @keyup.13="change_page(this.value)"/> 页 
+					<label @click="change_page($('pagination-turn input').val())">确定</label>
 				</div>
 			</div>
 		</div> 
@@ -35,36 +35,8 @@ var paginate_html= function(){
 	*/
 }
 
-var wear_html = function(){
-	/*
-	<paginate-tool v-on:change_rows="change_rows" v-on:change_page="change_page" v-on:pre_page="pre_page" v-on:next_page="next_page" :rows="rows" :show_page="show_page" :rows_list="rows_list" :page="page"></paginate-tool>
-	*/
-}
-
-var html2 = new String(wear_html);  
-html2 = html2.substring(html2.indexOf("/*") + 3, html2.lastIndexOf("*/"));
-
 var html = new String(paginate_html);  
 html = html.substring(html.indexOf("/*") + 3, html.lastIndexOf("*/"));
-
-Vue.component('paginate-tool', {
-	template: html,
-	props:['rows', 'rows_list', 'show_page', 'page'],
-	methods:{
-		child_change_rows: function(item){
-			this.$emit('change_rows', item);
-		},
-		child_change_page: function(i, event){
-			this.$emit('change_page', i, event);
-		},
-		child_pre_page: function(){
-			this.$emit('pre_page');
-		},
-		child_next_page: function(){
-			this.$emit('next_page');
-		}
-	}
-})
 
 
 var paginate_vue = new Vue({
@@ -72,7 +44,7 @@ var paginate_vue = new Vue({
 	el:'.bottom-tool',
 	components:{
 		'wear-paginate':{
-			template:html2,
+			template:html,
 			data:function(){
 				return{
 					rows: 10,
@@ -89,10 +61,6 @@ var paginate_vue = new Vue({
 				},
 				page:function(){
 					invoke(this.rows, this.page);
-					this.show_paged();
-				},
-				page_total:function(){
-					this.show_paged();
 				}
 			},
 			updated:function(){
@@ -110,94 +78,30 @@ var paginate_vue = new Vue({
 				}		
 			},
 			methods:{
-				change_rows: function(item){
-					this.rows = item;
-				},
-				change_page:function(i, event){
-					if(event == ''){
-						if($('.pagination-turn input').val() > this.page_total){
-							alert('输入的页码过大，请重新输入');
-							$('.pagination-turn input').val(this.page);
-							return;
+				change_page:function(index){
+					console.info("asd");
+					var exit = $.inArray(index, this.show_page);
+					this.page = index;
+					if(exit != -1);
+					else if(this.page_total-5<index && index<this.page_total){
+						var list = [];
+						list.push(1);
+						list.push("···");
+						for(var i=this.page_total-5;i<=this.page_total;i++){
+							list.push(i);
 						}
-						if($('.pagination-turn input').val() == $('.pagination .active').html()) return;
-						this.remove_class();				
-						this.page = $('.pagination-turn input').val();	
-						
+						this.show_page = list;
 					}
-					else{
-						if(event.target.className == 'start' ||event.target.className == 'end' || event.target.className == 'ellipsis');
-						else{
-							this.remove_class();
-							
-							this.page = event.target.innerText;
-							$(event.target).attr('class', 'active');
+					else if(index>=5){
+						var list = [];
+						list.push(1);
+						list.push("···");
+						for(var i=index-2;i<index+2;i++){
+							list.push(i);
 						}
-					}
-				},
-				pre_page:function(){
-					if(this.page == 1);
-					else{
-						this.page = parseInt(this.page)-1;
-						var active = $('.paginate li.active');
-						active.removeAttr('class');
-						active.prev().attr('class', 'active');
-					}
-				},
-				next_page:function(){
-					if(this.page == this.page_total);
-					else{
-						this.page = parseInt(this.page)+1;
-						var active = $('.paginate li.active');
-						active.removeAttr('class');
-						active.next().attr('class', 'active');
-					}
-				},
-				remove_class: function(){
-					var start = $('.paginate .start');
-					var end = $('.paginate .end');
-					var ellipsis = $('.paginate .ellipsis');
-							
-					start.attr('class', 'start');
-					end.attr('class', 'end');
-					ellipsis.attr('class', 'ellipsis');
-			
-					$('.paginate ul li').removeAttr('class');
-				},
-				show_paged:function(){
-					this.show_page = [];
-					if(this.page_total > 10){
-						if(this.page >= 5){
-							if(this.page_total - this.page < 5){
-								this.show_page.push(1);
-								this.show_page.push("···");
-								for(i=this.page_total-5;i<=this.page_total;i++){
-									this.show_page.push(i);
-								}
-							}
-							else{
-								var page_end = parseInt(this.page) + 5;
-								this.show_page.push(1);
-								this.show_page.push("···");
-								for(i=this.page-2;i<page_end-2;i++){
-									this.show_page.push(i);
-								}
-								this.show_page.push("···");
-								this.show_page.push(this.page_total);
-							}
-						}
-						else{
-							for(i=1;i<6;i++){
-								this.show_page.push(i);
-							}
-							this.show_page.push("···");
-							this.show_page.push(this.page_total);
-						}
-					}
-					else{
-						for(i=1;i<this.page_total;i++){
-							this.show_page.push(i);					
-						}
+						list.push("···");
+						list.push(this.page_total);
+						this.show_page = list;
 					}
 				}
 			}	
@@ -210,8 +114,19 @@ var paginate_tool = new Object();
 paginate_tool.method_name = "";
 
 paginate_tool.init = function (method_name, page_total, rows_list){
-	paginate_vue.$children[0].page_total = page_total;
 	this.method_name = method_name;
+	var list = [];
+	for(var i=1;i<=5;i++){
+		list.push(i);
+	}
+	if(page_total>5){
+		list.push('···');
+		list.push(page_total);
+	}
+	paginate_vue.$children[0].show_page = list;
+	paginate_vue.$children[0].page_total = page_total;
+	paginate_vue.$children[0].change_page(1);
+	
 	if(rows_list != null && rows_list != '' ){
 		if(rows_list.length != 0){
 			paginate_vue.$children[0].rows_list = rows_list;
@@ -221,7 +136,7 @@ paginate_tool.init = function (method_name, page_total, rows_list){
 }
 
 function invoke(rows, page){
-	if(paginate_tool.method_name == '') return;
+	if(paginate_tool.method_name == '') console.info('没有传递查询函数的函数名');
 	var func = eval(paginate_tool.method_name);
 	new func(rows, page);
 }
@@ -236,7 +151,6 @@ $(function(){
 	});
 	
 	$('body').on('click', function(e){
-		console.info("adsf");
 		e.stopPropagation();
 		$(".page-select").find("ul.dropdown-menu").stop().slideUp('fast');
 	})
