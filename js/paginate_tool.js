@@ -17,17 +17,19 @@ var paginate_html= function(){
 		<div class="paginate col-md-6 right"> 
 			<div class="row">
 				<ul class="col-md-6 pagination"> 
-					<li class="start" @click="change_page(index--)"><i>&lt;</i></li> 
+					<li v-if="page == 1" class="start" style="cursor: not-allowed;"><i>&lt;</i></li> 
+					<li v-else class="start" @click="change_page(page-1)"><i>&lt;</i></li> 
 					<template v-for="index in show_page">
 						<li v-if="index == '···'" class="ellipsis" v-text="index" :key="index" ></li> 
 						<li v-else v-text="index" :title="index" :key="index" :class="{active: index == page}" @click="change_page(index)"></li>
 					</template> 
-					<li class="end" @click="change_page(index++)"><i>&gt;</i></li> 
+					<li v-if="page == page_total" class="end" style="cursor: not-allowed"><i>&gt;</i></li> 
+					<li v-else class="end" @click="change_page(page+1)"><i>&gt;</i></li>
 				</ul>
 				<div class="col-md-4 pagination-turn">
 					跳转到
-					<input onkeyup="value=value.replace(/[^0-9]/g, '')" v-bind:value="page" onblur="if(this.value == '' || this.value<=0){this.value=1}" @keyup.13="change_page(this.value)"/> 页 
-					<label @click="change_page($('pagination-turn input').val())">确定</label>
+					<input onkeyup="value=value.replace(/[^0-9]/g, '')" v-bind:value="page" onblur="if(this.value == '' || this.value<=0){this.value=1}" @keyup.13="input_page"/> 页 
+					<label @click="input_page">确定</label>
 				</div>
 			</div>
 		</div> 
@@ -37,7 +39,6 @@ var paginate_html= function(){
 
 var html = new String(paginate_html);  
 html = html.substring(html.indexOf("/*") + 3, html.lastIndexOf("*/"));
-
 
 var paginate_vue = new Vue({
 	delimiters:['((', '))'],
@@ -52,7 +53,6 @@ var paginate_vue = new Vue({
 					page_total: 1,
 					show_page: [],
 					rows_list: [10, 20, 30],
-
 				}
 			},
 			watch:{
@@ -63,46 +63,43 @@ var paginate_vue = new Vue({
 					invoke(this.rows, this.page);
 				}
 			},
-			updated:function(){
-				
-				/*直接跳转页面时，使用的渲染*/
-				if($('.paginate .active').length == 0){
-					var lis = $('.paginate ul li');
-					for(var i=0;i<lis.length;i++){
-						var li = $(lis[i]);
-						if(li.html() == $('.pagination-turn input').val()){
-							li.attr('class', 'active');
-							return;
-						}
-					}
-				}		
-			},
 			methods:{
+				input_page:function(){
+					this.change_page($('.pagination-turn input').val());
+				},
 				change_page:function(index){
-					console.info("asd");
-					var exit = $.inArray(index, this.show_page);
-					this.page = index;
-					if(exit != -1);
-					else if(this.page_total-5<index && index<this.page_total){
-						var list = [];
-						list.push(1);
-						list.push("···");
-						for(var i=this.page_total-5;i<=this.page_total;i++){
-							list.push(i);
-						}
-						this.show_page = list;
+					if(index > this.page_total){
+						alert('输入的页码超过了最大页码，请重新输入');
+						$('.pagination-turn input').val(this.page);
+						return;
 					}
-					else if(index>=5){
-						var list = [];
-						list.push(1);
-						list.push("···");
-						for(var i=index-2;i<index+2;i++){
+					index = parseInt(index);
+					this.page = index
+					var list = [];					
+					if(index < 5){
+						for(i=1;i<=5;i++){
 							list.push(i);
 						}
-						list.push("···");
+						list.push('···');
+						list.push(this.page_total);						
+					}
+					else if(index > this.page_total-5){
+						list.push(1);
+						list.push('···');
+						for(i=this.page_total-5;i<=this.page_total;i++){
+							list.push(i);
+						}
+					}
+					else if(index >= 5){
+						list.push(1);
+						list.push('···');
+						for(i=index-2;i<=index+2;i++){
+							list.push(i);
+						}
+						list.push('···');
 						list.push(this.page_total);
-						this.show_page = list;
 					}
+					this.show_page = list;
 				}
 			}	
 		}
@@ -115,15 +112,7 @@ paginate_tool.method_name = "";
 
 paginate_tool.init = function (method_name, page_total, rows_list){
 	this.method_name = method_name;
-	var list = [];
-	for(var i=1;i<=5;i++){
-		list.push(i);
-	}
-	if(page_total>5){
-		list.push('···');
-		list.push(page_total);
-	}
-	paginate_vue.$children[0].show_page = list;
+
 	paginate_vue.$children[0].page_total = page_total;
 	paginate_vue.$children[0].change_page(1);
 	
