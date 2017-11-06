@@ -92,3 +92,22 @@ html,body{
 	line-height:26px;
 	cursor:pointer;
 }
+
+.pagination{
+	position:absolute;
+	right:175px;
+	margin:0px !important;
+}
+
+.pagination-turn{
+	position:absolute;
+	right:0px;
+	padding-right:0px;
+}
+.pagination-total{
+	padding-right:0px;
+	max-width:101px;
+	min-width:101px;
+	height:27px;
+	line-height:27px;
+}

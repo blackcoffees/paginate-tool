@@ -1,7 +1,7 @@
 var paginate_html= function(){
 	/*
 	<div class="paginate-tool row "> 
-		<div class="page-select col-md-6 left"> 
+		<div class="page-select col-md-5 left"> 
 			<div class="dropdown"> 
 				<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
 					{{rows}} 
@@ -14,20 +14,23 @@ var paginate_html= function(){
 				</ul> 
 			</div> 
 		</div> 
-		<div class="paginate col-md-6 right"> 
+		<div class="paginate col-md-7 right"> 
 			<div class="row">
-				<ul class="col-md-6 pagination"> 
-					<li v-if="page == 1" class="start" style="cursor: not-allowed;"><i>&lt;</i></li> 
-					<li v-else class="start" @click="change_page(page-1)"><i>&lt;</i></li> 
-					<template v-for="index in show_page">
-						<li v-if="index == '···'" class="ellipsis" v-text="index" :key="index" ></li> 
-						<li v-else v-text="index" :title="index" :key="index" :class="{active: index == page}" @click="change_page(index)"></li>
-					</template> 
-					<li v-if="page == page_total" class="end" style="cursor: not-allowed"><i>&gt;</i></li> 
-					<li v-else class="end" @click="change_page(page+1)"><i>&gt;</i></li>
-				</ul>
+				<div class="col-md-6 pagination">
+					<div class="col-md-1 pagination-total">总共 {{row_total}} 条记录</div>
+					<ul class="col-md-6">
+						<li v-if="page == 1" class="start" style="cursor: not-allowed;"><i>&lt;</i></li> 
+						<li v-else class="start" @click="change_page(page-1)"><i class="fa fa-angle-left"></i></li> 
+						<template v-for="index in show_page">
+							<li v-if="index == '···'" class="ellipsis" v-text="index" :key="index" ></li> 
+							<li v-else v-text="index" :title="index" :key="index" :class="{active: index == page}" @click="change_page(index)"></li>
+						</template> 
+						<li v-if="page == page_total" class="end" style="cursor: not-allowed"><i>&gt;</i></li> 
+						<li v-else class="end" @click="change_page(page+1)"><i class="fa fa-angle-right"></i></li>
+					</ul>
+				</div>
 				<div class="col-md-4 pagination-turn">
-					跳转到
+					<span>跳转到</span>
 					<input onkeyup="value=value.replace(/[^0-9]/g, '')" v-bind:value="page" onblur="if(this.value == '' || this.value<=0){this.value=1}" @keyup.13="input_page"/> 页 
 					<label @click="input_page">确定</label>
 				</div>
@@ -53,6 +56,7 @@ var paginate_vue = new Vue({
 					page_total: 1,
 					show_page: [],
 					rows_list: [10, 20, 30],
+					row_total: 0
 				}
 			},
 			watch:{
@@ -68,7 +72,7 @@ var paginate_vue = new Vue({
 					this.change_page($('.pagination-turn input').val());
 				},
 				change_page:function(index){
-					if(index > this.page_total){
+					if(index > this.page_total && index != 1){
 						alert('输入的页码超过了最大页码，请重新输入');
 						$('.pagination-turn input').val(this.page);
 						return;
@@ -118,11 +122,13 @@ var paginate_tool = new Object();
 
 paginate_tool.method_name = "";
 
-paginate_tool.init = function (method_name, page_total, rows_list){
+paginate_tool.init = function (method_name, page_total, row_total, rows_list){
 	this.method_name = method_name;
-
 	paginate_vue.$children[0].page_total = page_total;
-	paginate_vue.$children[0].change_page(1);
+	paginate_vue.$children[0].row_total = row_total;
+	
+	if(paginate_vue.$children[0].page == 1)
+		paginate_vue.$children[0].change_page(1);
 	
 	if(rows_list != null && rows_list != '' ){
 		if(rows_list.length != 0){
