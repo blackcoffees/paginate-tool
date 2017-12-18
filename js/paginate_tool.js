@@ -1,7 +1,7 @@
 var paginate_html= function(){
 	/*
 	<div class="paginate-tool row "> 
-		<div class="page-select col-md-5 left"> 
+		<div class="page-select left"> 
 			<div class="dropdown"> 
 				<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"> 
 					{{rows}} 
@@ -14,22 +14,24 @@ var paginate_html= function(){
 				</ul> 
 			</div> 
 		</div> 
-		<div class="paginate col-md-7 right"> 
+		<div class="paginate right"> 
 			<div class="row">
-				<div class="col-md-6 pagination">
-					<div class="col-md-1 pagination-total">总共 {{row_total}} 条记录</div>
-					<ul class="col-md-6">
-						<li v-if="page == 1" class="start" style="cursor: not-allowed;"><i>&lt;</i></li> 
-						<li v-else class="start" @click="change_page(page-1)"><i class="fa fa-angle-left"></i></li> 
-						<template v-for="index in show_page">
-							<li v-if="index == '···'" class="ellipsis" v-text="index" :key="index" ></li> 
-							<li v-else v-text="index" :title="index" :key="index" :class="{active: index == page}" @click="change_page(index)"></li>
-						</template> 
-						<li v-if="page == page_total" class="end" style="cursor: not-allowed"><i>&gt;</i></li> 
-						<li v-else class="end" @click="change_page(page+1)"><i class="fa fa-angle-right"></i></li>
-					</ul>
+				<div class="left">
+					<div class="left paginate_total_record">总共 {{row_total}} 条记录</div>
+					<div class="left">
+						<ul>
+							<li v-if="page == 1" class="paginate_start no_allowed"></li> 
+							<li v-else class="paginate_start" @click="change_page(page-1)"></li> 
+							<template v-for="index in show_page">
+								<li v-if="index == '···'" class="ellipsis" v-text="index" :key="index" ></li> 
+								<li v-else v-text="index" :title="index" :key="index" :class="{active: index == page}" @click="change_page(index)"></li>
+							</template> 
+							<li v-if="page == page_total" class="paginate_end no_allowed"><i>&gt;</i></li> 
+							<li v-else class="paginate_end" @click="change_page(page+1)"></li>
+						</ul>
+					</div>
 				</div>
-				<div class="col-md-4 pagination-turn">
+				<div class="left pagination-turn">
 					<span>跳转到</span>
 					<input onkeyup="value=value.replace(/[^0-9]/g, '')" v-bind:value="page" onblur="if(this.value == '' || this.value<=0){this.value=1}" @keyup.13="input_page"/> 页 
 					<label @click="input_page">确定</label>

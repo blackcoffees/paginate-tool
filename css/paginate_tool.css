@@ -27,10 +27,7 @@ html,body{
 	line-height:27px;
 	text-align:center;
 	cursor:pointer;
-}
-
-.paginate ul li i{
-	line-height:27px;
+	list-style: none;
 }
 
 .paginate{
@@ -74,6 +71,7 @@ html,body{
 .pagination-turn{
 	height:27px;
 	line-height:27px;
+	margin-left: 10px;
 }
 
 .pagination-turn input{
@@ -99,15 +97,26 @@ html,body{
 	margin:0px !important;
 }
 
-.pagination-turn{
-	position:absolute;
-	right:0px;
-	padding-right:0px;
-}
 .pagination-total{
 	padding-right:0px;
 	max-width:101px;
 	min-width:101px;
 	height:27px;
 	line-height:27px;
+}
+
+.paginate_start{
+	background:url(../img/page_btn_left.png) no-repeat !important;
+	background-position:center center !important;
+}
+
+.paginate_end{
+	background:url(../img/page_btn_right.png) no-repeat !important;
+	background-position:center center !important;
+}
+.no_allowed{
+	cursor: not-allowed !important;
+}
+.paginate_total_record{
+	padding-top:5px;	
 }
